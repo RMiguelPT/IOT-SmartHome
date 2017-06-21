@@ -1,0 +1,12 @@
+DIFICULDADES SENTIDAS:
+
+-Problemas a enviar os sketches para os ESP8266
+--Resolução: Flash dos ESP8266 com o programa ESP8266Flasher
+
+-Problemas a ligar as redes WiFi
+--Resolução: Downgrade do SDK dos ESP8266 para a versão 2.2.0 (No arduino IDE)
+
+-Problemas no envio da mensagem MQTT de autoconfiguração para a plataforma HomeAssistant (payload > 128b)
+--Resolução: Alteração do codigo da biblioteca PubSubClient.h de #define MQTT_MAX_PACKET_SIZE 128 para #define MQTT_MAX_PACKET_SIZE 256 (linha 26)
+
+
