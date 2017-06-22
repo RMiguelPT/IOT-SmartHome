@@ -9,4 +9,9 @@ DIFICULDADES SENTIDAS:
 -Problemas no envio da mensagem MQTT de autoconfiguração para a plataforma HomeAssistant (payload > 128b)
 --Resolução: Alteração do codigo da biblioteca PubSubClient.h de #define MQTT_MAX_PACKET_SIZE 128 para #define MQTT_MAX_PACKET_SIZE 256 (linha 26)
 
-
+-Sensores repetidos no Dashboard do Homeassistant (Auto-Discovery mode)
+--Resolução: Alteracao discovery.py com o comando: sudo nano /srv/homeassistant/lib/python3.4/site-packages/homeassistant/components/mqtt/discovery.py e adicionar as linhas seguintes:
+---Linha 31: DISCOVERED_TOPICS = []
+---Linhas 45 e 46: if topic in DISCOVERED_TOPICS:
+		      return
+---Linha 72: DISCOVERED_TOPICS.append(topic)

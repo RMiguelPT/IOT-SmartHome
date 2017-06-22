@@ -1,28 +1,8 @@
 /*
-Basic ESP8266 MQTT example
-
-This sketch demonstrates the capabilities of the pubsub library in combination
-with the ESP8266 board/library.
-
-It connects to an MQTT server then:
-- publishes "hello world" to the topic "outTopic" every two seconds
-- subscribes to the topic "inTopic", printing out any messages
-it receives. NB - it assumes the received payloads are strings not binary
-- If the first character of the topic "inTopic" is an 1, switch ON the ESP Led,
-else switch it off
-
-It will reconnect to the server if the connection is lost using a blocking
-reconnect function. See the 'mqtt_reconnect_nonblocking' example for how to
-achieve the same result without blocking the main loop.
-
-To install the ESP8266 board, (using Arduino 1.6.4+):
-- Add the following 3rd party board manager under "File -> Preferences -> Additional Boards Manager URLs":
-http://arduino.esp8266.com/stable/package_esp8266com_index.json
-- Open the "Tools -> Board -> Board Manager" and click install for the ESP8266"
-- Select your ESP8266 in "Tools -> Board"
-
+Name:		Ventilation.ino
+Created:	16/06/2017 20:59:27
+Author:	Ruben
 */
-
 #include <ArduinoJson.h>
 //#include <DHT_U.h>
 #include <DHT.h>
@@ -132,39 +112,19 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
 void reconnect() {
 	// Loop until we're reconnected
+	Serial.print("Attempting MQTT connection...");
 	while (!client.connected()) {
-		Serial.println("Attempting MQTT connection...");
 		// Attempt to connect
-	
-		if (client.connect("ESP8266Client", mqtt_user, mqtt_pass)) {
-			Serial.println("MQTT_Connected");
+		
+			configure_MQTT_temp_sensor();
+			configure_MQTT_hum_sensor();
+		
 
-			//******TEMPERATURE CONFIGURATION*******//
-			JSONencoder["name"] = "Living Room Temperature";
-			JSONencoder["device_class"] = "Temperature";
-			JSONencoder["unit_of_measurement"] = "ºC";
-			
-			char JSONmessageBuffer[301];
-			JSONencoder.printTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
-			JSONencoder.printTo(Serial);
-			if (!client.publish(mqtt_temp_config_topic, JSONmessageBuffer, sizeof(JSONmessageBuffer)))
-			{
-				Serial.println("Temperature Config Message Not Published");
-			}
-
-		}
-		else {
-			Serial.print("failed, rc=");
-			Serial.print(client.state());
-			Serial.println(" try again in 5 seconds");
-			// Wait 5 seconds before retrying
-			delay(5000);
-		}
 	}
 }
 void loop() {
 	float temp = 0;
-	int hum = 0;
+	float hum = 0;
 
 	if (!client.connected()) {
 		reconnect();
@@ -172,32 +132,86 @@ void loop() {
 	client.loop();
 
 	temp = dht.readTemperature();
+	hum = dht.readHumidity();
 	
 
 	
 	if (isnan(temp))
 	{
-		Serial.print(F("Failed to read from DHT sensor!\r\n"));
+		Serial.println("Failed to read TEMPERATURE from DHT sensor!");
 	}
 	else
 	{
-		Serial.println(temp);
+		
 		client.publish(mqtt_temp_state_topic, String(temp).c_str());
+	}
+
+	if (isnan(hum)) 
+	{
+		Serial.println("Failed to read HUMIDITY from DHT sensor!");
+	}
+	else
+	{
+		client.publish(mqtt_hum_state_topic, String(hum).c_str());
 	}
 	delay(2500);
 
-
-	//client.publish(mqtt_temp_state_topic, String(temp).c_str(), true);
-	//delay(1000);
-	//hum = dht.readHumidity();
-	
-
-
-	
-	//client.publish(mqtt_temp_state_topic, "0.0");
-	//client.publish(mqtt_hum_state_topic, String(hum).c_str(), true);
-
-	//delay(5000);
-
 }
 
+void configure_MQTT_temp_sensor()
+{
+	if (client.connect("ESP8266Client", mqtt_user, mqtt_pass)) {
+		Serial.println("MQTT_Connected");
+
+		//******TEMPERATURE CONFIGURATION*******//
+		JSONencoder["name"] = "Living Room Temperature";
+		JSONencoder["unit_of_measurement"] = "\u2103";
+
+
+		char JSONmessageBuffer[300];
+		JSONencoder.printTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
+		Serial.println(JSONmessageBuffer);
+
+		if (!client.publish(mqtt_temp_config_topic, JSONmessageBuffer, sizeof(JSONmessageBuffer)))
+		{
+			Serial.println("Temperature Config Message Not Published");
+		}
+
+	}
+	else {
+		Serial.print("failed, rc=");
+		Serial.print(client.state());
+		Serial.println(" try again in 5 seconds");
+		// Wait 5 seconds before retrying
+		delay(5000);
+	}
+}
+void configure_MQTT_hum_sensor()
+{
+	if (client.connect("ESP8266Client", mqtt_user, mqtt_pass)) {
+		Serial.println("MQTT_Connected");
+
+		//******HUMIDITY CONFIGURATION*******//
+		JSONencoder["name"] = "Living Room Humidity";
+		JSONencoder["device_class"] = "Humidity";
+		JSONencoder["unit_of_measurement"] = "%";
+
+		char JSONmessageBuffer[300];
+		JSONencoder.printTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
+		Serial.println(JSONmessageBuffer);
+
+		
+		if (!client.publish(mqtt_hum_config_topic, JSONmessageBuffer, sizeof(JSONmessageBuffer)))
+		{
+			Serial.println("Humidity Config Message Not Published");
+		}
+
+	}
+	else {
+		Serial.print("failed, rc=");
+		Serial.print(client.state());
+		Serial.println(" try again in 5 seconds");
+		// Wait 5 seconds before retrying
+		delay(5000);
+	}
+}
