@@ -1,21 +1,16 @@
 /*
-Name:		Ventilation.ino
-Created:	16/06/2017 20:59:27
-Author:	Ruben
+ Name:		Flame_Sensor.ino
+ Created:	23/06/2017 23:08:16
+ Author:	Ruben
 */
+
 #include <ArduinoJson.h>
-//#include <DHT_U.h>
-#include <DHT.h>
 #include <arduino_pins.h>
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 
 //*********DEFINES*********//
-
-#define DHTTYPE DHT22     // DHT 22 
-//#define DHTPIN 5
-
-DHT dht(D1, DHTTYPE);
+#define FLAME_SENSOR_PIN A0
 
 StaticJsonBuffer<300> JSONbuffer;
 JsonObject& JSONencoder = JSONbuffer.createObject();
@@ -34,11 +29,8 @@ const char* mqtt_server = "10.20.228.238";
 const char* mqtt_user = "pi";
 const char* mqtt_pass = "raspberry";
 
-const char* mqtt_temp_config_topic = "homeassistant/sensor/temperature/config";
-const char* mqtt_hum_config_topic = "homeassistant/sensor/humidity/config";
-
-const char* mqtt_temp_state_topic = "homeassistant/sensor/temperature/state";
-const char* mqtt_hum_state_topic = "homeassistant/sensor/humidity/state";
+const char* mqtt_config_topic = "homeassistant/sensor/flame/config";
+const char* mqtt_state_topic = "homeassistant/sensor/flame/state";
 
 
 
@@ -47,22 +39,17 @@ PubSubClient client(espClient);
 
 long lastMsg = 0;
 char msg[50];
-int value = 0;
-
-
+int flame_value = 0;
 
 void setup() {
 
 	pinMode(D1, INPUT);
 
-
-	dht.begin();
 	delay(1000);
 	pinMode(BUILTIN_LED, OUTPUT);     // Initialize the BUILTIN_LED pin as an output
-	
+
 
 	Serial.begin(9600);
-	//Serial.setDebugOutput(true);
 	setup_wifi();
 	client.setServer(mqtt_server, 1883);
 	client.setCallback(callback);
@@ -75,16 +62,10 @@ void setup_wifi() {
 	// We start by connecting to a WiFi network
 	Serial.println();
 	Serial.print("Connecting to ");
-	
 
 	WiFi.mode(WIFI_STA);
-
-		Serial.println(ssid);
-		WiFi.begin(ssid, password);		
-	
-
-
-	
+	Serial.println(ssid);
+	WiFi.begin(ssid, password);
 
 	while (WiFi.status() != WL_CONNECTED) {
 		delay(500);
@@ -123,95 +104,43 @@ void reconnect() {
 	Serial.print("Attempting MQTT connection...");
 	while (!client.connected()) {
 		// Attempt to connect
-		
-			configure_MQTT_temp_sensor();
-			configure_MQTT_hum_sensor();
-		
 
+		configure_MQTT_sensor();
 	}
 }
 void loop() {
-	float temp = 0;
-	float hum = 0;
 
 	if (!client.connected()) {
 		reconnect();
 	}
 	client.loop();
 
-	temp = dht.readTemperature();
-	hum = dht.readHumidity();
-	
+	flame_value = analogRead(FLAME_SENSOR_PIN); //Read data from analog pin and store it to value variable
+	flame_value = map(flame_value, 0, 1024, 1024, 0);
+	client.publish(mqtt_state_topic, String(flame_value).c_str());
 
-	
-	if (isnan(temp))
-	{
-		Serial.println("Failed to read TEMPERATURE from DHT sensor!");
-	}
-	else
-	{
-		
-		client.publish(mqtt_temp_state_topic, String(temp).c_str());
-	}
 
-	if (isnan(hum)) 
-	{
-		Serial.println("Failed to read HUMIDITY from DHT sensor!");
-	}
-	else
-	{
-		client.publish(mqtt_hum_state_topic, String(hum).c_str());
-	}
-	delay(2500);
+	delay(500);
 
 }
 
-void configure_MQTT_temp_sensor()
+void configure_MQTT_sensor()
 {
-	if (client.connect("Temperature_&_Humidity_Sensor", mqtt_user, mqtt_pass)) {
+	if (client.connect("FlameSensor", mqtt_user, mqtt_pass)) {
 		Serial.println("MQTT_Connected");
 
 		//******TEMPERATURE CONFIGURATION*******//
-		JSONencoder["name"] = "Living Room Temperature";
-		JSONencoder["unit_of_measurement"] = "\u2103";
+		JSONencoder["name"] = "Kitchen Flame Level";
+		JSONencoder["unit_of_measurement"] = "";
 
 
 		char JSONmessageBuffer[300];
 		JSONencoder.printTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
 		Serial.println(JSONmessageBuffer);
 
-		if (!client.publish(mqtt_temp_config_topic, JSONmessageBuffer, sizeof(JSONmessageBuffer)))
+		if (!client.publish(mqtt_config_topic, JSONmessageBuffer, sizeof(JSONmessageBuffer)))
 		{
-			Serial.println("Temperature Config Message Not Published");
-		}
-
-	}
-	else {
-		Serial.print("failed, rc=");
-		Serial.print(client.state());
-		Serial.println(" try again in 5 seconds");
-		// Wait 5 seconds before retrying
-		delay(5000);
-	}
-}
-void configure_MQTT_hum_sensor()
-{
-	if (client.connect("ESP8266Client", mqtt_user, mqtt_pass)) {
-		Serial.println("MQTT_Connected");
-
-		//******HUMIDITY CONFIGURATION*******//
-		JSONencoder["name"] = "Living Room Humidity";
-		JSONencoder["device_class"] = "Humidity";
-		JSONencoder["unit_of_measurement"] = "%";
-
-		char JSONmessageBuffer[300];
-		JSONencoder.printTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
-		Serial.println(JSONmessageBuffer);
-
-		
-		if (!client.publish(mqtt_hum_config_topic, JSONmessageBuffer, sizeof(JSONmessageBuffer)))
-		{
-			Serial.println("Humidity Config Message Not Published");
+			Serial.println("Flame Sensor Config Message Not Published");
 		}
 
 	}

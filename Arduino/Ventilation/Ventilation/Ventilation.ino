@@ -13,14 +13,14 @@ JsonObject& JSONencoder = JSONbuffer.createObject();
 
 /********************NETWORK CONFIGURATION******************/
 /*--DroidLAN--*/
-//const char* ssid = "droid_wlan";
-//const char* password = "WlanDr01d16";
+const char* ssid = "droid_wlan";
+const char* password = "WlanDr01d16";
 
+//const char* ssid = "BitNet-Informatica";
+//const char* password = "bitnet-infor-2014*";
 
-const char* ssid = "BitNet-Informatica";
-const char* password = "bitnet-infor-2014*";
-
-const char* mqtt_server = "192.168.1.14";
+//const char* mqtt_server = "192.168.1.14";
+const char* mqtt_server = "10.20.228.238";
 const char* mqtt_user = "pi";
 const char* mqtt_pass = "raspberry";
 
@@ -45,6 +45,7 @@ void setup() {
 	pinMode(BUILTIN_LED, OUTPUT);     // Initialize the BUILTIN_LED pin as an output
 
 
+
 	Serial.begin(9600);
 	//Serial.setDebugOutput(true);
 	setup_wifi();
@@ -59,10 +60,13 @@ void setup_wifi() {
 	// We start by connecting to a WiFi network
 	Serial.println();
 	Serial.print("Connecting to ");
-	Serial.println(ssid);
 
 	WiFi.mode(WIFI_STA);
-	WiFi.begin(ssid, password);
+
+	
+		Serial.println(ssid);
+		WiFi.begin(ssid, password);
+	
 
 	while (WiFi.status() != WL_CONNECTED) {
 		delay(500);
@@ -84,11 +88,8 @@ void callback(char* topic, byte* payload, unsigned int length) {
 	}
 	Serial.println();
 
-	// Switch on the LED if an 1 was received as first character
 	if ((char)payload[0] == '1') {
-		digitalWrite(D1, HIGH);   // Turn the LED on (Note that LOW is the voltage level
-										  // but actually the LED is on; this is because
-										  // it is acive low on the ESP-01)
+		digitalWrite(D1, HIGH);   
 		client.publish(mqtt_state_topic, "1");
 	}
 	else {
