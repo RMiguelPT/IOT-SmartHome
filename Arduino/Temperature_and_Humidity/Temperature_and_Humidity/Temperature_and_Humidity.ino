@@ -3,6 +3,8 @@ Name:		Ventilation.ino
 Created:	16/06/2017 20:59:27
 Author:	Ruben
 */
+#include <LiquidCrystal_I2C.h>
+#include <LiquidCrystal.h>
 #include <ArduinoJson.h>
 //#include <DHT_U.h>
 #include <DHT.h>
