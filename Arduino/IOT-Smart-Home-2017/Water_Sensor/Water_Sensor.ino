@@ -22,7 +22,7 @@ JsonObject& JSONencoder = JSONbuffer.createObject();
 //const char* password = "WlanDr01d16";
 
 const char* ssid = "home_anytime"; //local router
-const char* password = "iot2107!";//local router
+const char* password = "iot2017!";//local router
 
 //const char* ssid = "BitNet-Informatica";
 //const char* password = "bitnet-infor-2014*";
@@ -31,7 +31,7 @@ const char* password = "iot2107!";//local router
 //const char* mqtt_user = "pi";
 //const char* mqtt_pass = "raspberry";
 const char* mqtt_server = "192.168.1.67";//local router
-const char* mqtt_user = "modulo2";//local router
+const char* mqtt_user = "modulo2";//local route
 const char* mqtt_pass = "modulo2";//local router
 
 
@@ -75,8 +75,8 @@ void setup_wifi() {
 	WiFi.begin(ssid, password);
 
 	while (WiFi.status() != WL_CONNECTED) {
-		delay(500);
-		Serial.print(".");
+		delay(5000);
+		Serial.println("Disconnected");
 	}
 
 	Serial.println("");

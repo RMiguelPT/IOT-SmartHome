@@ -1,10 +1,10 @@
 /*
 Name:		Ventilation.ino
 Created:	16/06/2017 20:59:27
-Author:	Ruben
+Author:	Ruben && paulo
 */
-#include <LiquidCrystal_I2C.h>
-#include <LiquidCrystal.h>
+//#include <LiquidCrystal_I2C.h>
+//#include <LiquidCrystal.h>
 #include <ArduinoJson.h>
 //#include <DHT_U.h>
 #include <DHT.h>
@@ -25,16 +25,21 @@ JsonObject& JSONencoder = JSONbuffer.createObject();
 
 // Update these with values suitable for your network.
 
-const char* ssid = "droid_wlan";
-const char* password = "WlanDr01d16";
+//const char* ssid = "droid_wlan";
+//const char* password = "WlanDr01d16";
+
+const char* ssid = "home_anytime";
+const char* password = "iot2017!";
 
 //const char* ssid = "BitNet-Informatica";
 //const char* password = "bitnet-infor-2014*";
 
-const char* mqtt_server = "10.20.228.238";
-//const char* mqtt_server = "192.168.1.14";
-const char* mqtt_user = "pi";
-const char* mqtt_pass = "raspberry";
+//const char* mqtt_server = "10.20.228.238";
+//const char* mqtt_user = "pi";
+//const char* mqtt_pass = "raspberry";
+const char* mqtt_server = "192.168.1.67";//local router
+const char* mqtt_user = "modulo2";//local router
+const char* mqtt_pass = "modulo2";//local router
 
 const char* mqtt_temp_config_topic = "homeassistant/sensor/temperature/config";
 const char* mqtt_hum_config_topic = "homeassistant/sensor/humidity/config";
@@ -50,8 +55,6 @@ PubSubClient client(espClient);
 long lastMsg = 0;
 char msg[50];
 int value = 0;
-
-
 
 void setup() {
 
@@ -134,7 +137,9 @@ void reconnect() {
 }
 void loop() {
 	float temp = 0;
+	float old_temp = 0;
 	float hum = 0;
+	float old_hum = 0;
 
 	if (!client.connected()) {
 		reconnect();
@@ -152,8 +157,15 @@ void loop() {
 	}
 	else
 	{
+		if (old_temp != temp) {
+			client.publish(mqtt_temp_state_topic, String(temp).c_str());
+			old_temp = temp;
+		}
+		else
+		{
+			old_temp = temp;
+		}
 		
-		client.publish(mqtt_temp_state_topic, String(temp).c_str());
 	}
 
 	if (isnan(hum)) 
@@ -162,7 +174,15 @@ void loop() {
 	}
 	else
 	{
-		client.publish(mqtt_hum_state_topic, String(hum).c_str());
+		if (old_hum != hum) {
+			client.publish(mqtt_hum_state_topic, String(hum).c_str());
+			old_hum = hum;
+		}
+		else
+		{
+			old_hum = hum;
+		}
+		
 	}
 	delay(2500);
 
