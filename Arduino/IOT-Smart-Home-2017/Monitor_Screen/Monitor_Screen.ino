@@ -122,7 +122,7 @@ void setup_wifi() {
 	WiFi.begin(ssid, password);
 
 	while (WiFi.status() != WL_CONNECTED) {
-		delay(500);
+		delay(5000);
 		Serial.print(".");
 		lcd.print(".");
 
