@@ -15,6 +15,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Gas_n_Smoke", "Gas_n_Smoke\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Monitor_Screen", "Monitor_Screen\Monitor_Screen.vcxproj", "{9B82CDB9-39B5-44B9-BC91-C2EC6B348EA2}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "light_sensor", "light_sensor\light_sensor.vcxproj", "{723D5785-CA1E-4E05-A00E-8864E5263CFC}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pir_sensor", "pir_sensor\pir_sensor.vcxproj", "{AADF4C2F-D2D3-4B26-9143-9920159F8485}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -45,6 +49,14 @@ Global
 		{9B82CDB9-39B5-44B9-BC91-C2EC6B348EA2}.Debug|x86.Build.0 = Debug|Win32
 		{9B82CDB9-39B5-44B9-BC91-C2EC6B348EA2}.Release|x86.ActiveCfg = Release|Win32
 		{9B82CDB9-39B5-44B9-BC91-C2EC6B348EA2}.Release|x86.Build.0 = Release|Win32
+		{723D5785-CA1E-4E05-A00E-8864E5263CFC}.Debug|x86.ActiveCfg = Debug|Win32
+		{723D5785-CA1E-4E05-A00E-8864E5263CFC}.Debug|x86.Build.0 = Debug|Win32
+		{723D5785-CA1E-4E05-A00E-8864E5263CFC}.Release|x86.ActiveCfg = Release|Win32
+		{723D5785-CA1E-4E05-A00E-8864E5263CFC}.Release|x86.Build.0 = Release|Win32
+		{AADF4C2F-D2D3-4B26-9143-9920159F8485}.Debug|x86.ActiveCfg = Debug|Win32
+		{AADF4C2F-D2D3-4B26-9143-9920159F8485}.Debug|x86.Build.0 = Debug|Win32
+		{AADF4C2F-D2D3-4B26-9143-9920159F8485}.Release|x86.ActiveCfg = Release|Win32
+		{AADF4C2F-D2D3-4B26-9143-9920159F8485}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

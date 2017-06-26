@@ -18,16 +18,21 @@ JsonObject& JSONencoder = JSONbuffer.createObject();
 
 // Update these with values suitable for your network.
 
-const char* ssid = "droid_wlan";
-const char* password = "WlanDr01d16";
+//const char* ssid = "droid_wlan";
+//const char* password = "WlanDr01d16";
+
+const char* ssid = "home_anytime";//local router
+const char* password = "iot2017!";//local router
 
 //const char* ssid = "BitNet-Informatica";
 //const char* password = "bitnet-infor-2014*";
 
-const char* mqtt_server = "10.20.228.238";
-//const char* mqtt_server = "192.168.1.14";
-const char* mqtt_user = "pi";
-const char* mqtt_pass = "raspberry";
+//const char* mqtt_server = "10.20.228.238";
+//const char* mqtt_user = "pi";
+//const char* mqtt_pass = "raspberry";
+const char* mqtt_server = "192.168.1.67";//local router
+const char* mqtt_user = "modulo2";//local router
+const char* mqtt_pass = "modulo2";//local router
 
 const char* mqtt_config_topic = "homeassistant/sensor/gas/config";
 const char* mqtt_state_topic = "homeassistant/sensor/gas/state";
@@ -40,6 +45,7 @@ PubSubClient client(espClient);
 long lastMsg = 0;
 char msg[50];
 int gas_value = 0;
+int old_gas_value = 0;
 
 void setup() {
 
@@ -117,11 +123,17 @@ void loop() {
 
 	gas_value = analogRead(GAS_SENSOR_PIN); //Read data from analog pin and store it to value variable
 	//gas_value = map(gas_value, 0, 1024, 1024, 0);
-	client.publish(mqtt_state_topic, String(gas_value).c_str());
 
-
+	if (gas_value != old_gas_value) {
+		client.publish(mqtt_state_topic, String(gas_value).c_str());
+		old_gas_value = gas_value;
+	}
+	else
+	{
+		old_gas_value = gas_value;
+	}
+	
 	delay(500);
-
 }
 
 void configure_MQTT_sensor()

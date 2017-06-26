@@ -5,7 +5,7 @@
 */
 
 #include <ArduinoJson.h>
-#include <arduino_pins.h>
+//#include <arduino_pins.h>
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 
@@ -18,16 +18,22 @@ JsonObject& JSONencoder = JSONbuffer.createObject();
 
 // Update these with values suitable for your network.
 
-const char* ssid = "droid_wlan";
-const char* password = "WlanDr01d16";
+//const char* ssid = "droid_wlan";
+//const char* password = "WlanDr01d16";
+
+const char* ssid = "home_anytime";
+const char* password = "iot2017!";
 
 //const char* ssid = "BitNet-Informatica";
 //const char* password = "bitnet-infor-2014*";
 
-const char* mqtt_server = "10.20.228.238";
-//const char* mqtt_server = "192.168.1.14";
-const char* mqtt_user = "pi";
-const char* mqtt_pass = "raspberry";
+//const char* mqtt_server = "10.20.228.238";
+const char* mqtt_server = "192.168.1.67"; //local router
+//const char* mqtt_user = "pi";
+//const char* mqtt_pass = "raspberry";
+
+const char* mqtt_user = "modulo2"; //local router
+const char* mqtt_pass = "modulo2";//local router
 
 const char* mqtt_config_topic = "homeassistant/sensor/flame/config";
 const char* mqtt_state_topic = "homeassistant/sensor/flame/state";
@@ -40,6 +46,7 @@ PubSubClient client(espClient);
 long lastMsg = 0;
 char msg[50];
 int flame_value = 0;
+int old_flames_value = 0;
 
 void setup() {
 
@@ -117,7 +124,16 @@ void loop() {
 
 	flame_value = analogRead(FLAME_SENSOR_PIN); //Read data from analog pin and store it to value variable
 	flame_value = map(flame_value, 0, 1024, 1024, 0);
-	client.publish(mqtt_state_topic, String(flame_value).c_str());
+
+	if (flame_value != old_flames_value) {
+
+		client.publish(mqtt_state_topic, String(flame_value).c_str());
+		old_flames_value = flame_value;
+	}
+	else {
+		old_flames_value = flame_value;
+	}
+	
 
 
 	delay(500);

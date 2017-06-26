@@ -1,11 +1,11 @@
 /*
  Name:		Water_Sensor.ino
  Created:	23/06/2017 21:33:09
- Author:	Ruben
+ Author:	Ruben & paulo
 */
 
 #include <ArduinoJson.h>
-#include <arduino_pins.h>
+//#include <arduino_pins.h>
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 
@@ -18,16 +18,23 @@ JsonObject& JSONencoder = JSONbuffer.createObject();
 
 // Update these with values suitable for your network.
 
-const char* ssid = "droid_wlan";
-const char* password = "WlanDr01d16";
+//const char* ssid = "droid_wlan";
+//const char* password = "WlanDr01d16";
+
+const char* ssid = "home_anytime"; //local router
+const char* password = "iot2107!";//local router
 
 //const char* ssid = "BitNet-Informatica";
 //const char* password = "bitnet-infor-2014*";
 
-const char* mqtt_server = "10.20.228.238";
-//const char* mqtt_server = "192.168.1.14";
-const char* mqtt_user = "pi";
-const char* mqtt_pass = "raspberry";
+//const char* mqtt_server = "10.20.228.238";
+//const char* mqtt_user = "pi";
+//const char* mqtt_pass = "raspberry";
+const char* mqtt_server = "192.168.1.67";//local router
+const char* mqtt_user = "modulo2";//local router
+const char* mqtt_pass = "modulo2";//local router
+
+
 
 const char* mqtt_config_topic = "homeassistant/sensor/water/config";
 const char* mqtt_state_topic = "homeassistant/sensor/water/state";
@@ -40,6 +47,8 @@ PubSubClient client(espClient);
 long lastMsg = 0;
 char msg[50];
 int water_value = 0;
+int old_water_value = 0;
+int flag_flood = 2;//1- dry 2-flood
 
 void setup() {
 
@@ -48,12 +57,10 @@ void setup() {
 	delay(1000);
 	pinMode(BUILTIN_LED, OUTPUT);     // Initialize the BUILTIN_LED pin as an output
 
-
 	Serial.begin(9600);
 	setup_wifi();
 	client.setServer(mqtt_server, 1883);
 	client.setCallback(callback);
-
 }
 
 void setup_wifi() {
@@ -109,7 +116,6 @@ void reconnect() {
 	}
 }
 void loop() {
-
 	if (!client.connected()) {
 		reconnect();
 	}
@@ -119,15 +125,19 @@ void loop() {
 
 	if (water_value <= 480) {
 		Serial.println("Not Flooded");
-		client.publish(mqtt_state_topic, "dry");
+		if (flag_flood != 1) {
+			client.publish(mqtt_state_topic, "dry");
+			flag_flood = 1;
+		}
 	}
 	else {
 		Serial.println("Flooded");
-		client.publish(mqtt_state_topic, "flood");
+		if (flag_flood != 2) {
+			client.publish(mqtt_state_topic, "flood");
+			flag_flood = 2;
+		}
 	}
-
 	delay(500);
-
 }
 
 void configure_MQTT_sensor()
