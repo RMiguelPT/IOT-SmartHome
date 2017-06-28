@@ -20,9 +20,9 @@ const char* password = "WlanDr01d16";
 //const char* password = "bitnet-infor-2014*";
 
 //const char* mqtt_server = "192.168.1.14";
-const char* mqtt_server = "10.20.228.238";
-const char* mqtt_user = "pi";
-const char* mqtt_pass = "raspberry";
+const char* mqtt_server = "10.20.139.106";
+const char* mqtt_user = "modulo2";
+const char* mqtt_pass = "modulo2";
 
 const char* mqtt_config_topic = "homeassistant/switch/ventilation/config";
 const char* mqtt_state_topic = "homeassistant/switch/ventilation/state";

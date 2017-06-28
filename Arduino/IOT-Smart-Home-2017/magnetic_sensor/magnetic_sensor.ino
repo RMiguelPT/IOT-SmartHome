@@ -139,7 +139,7 @@ void loop() {
 
 void configure_MQTT_sensor()
 {
-	if (client.connect("PirSensor", mqtt_user, mqtt_pass)) {
+	if (client.connect("DoorSensor", mqtt_user, mqtt_pass)) {
 		Serial.println("MQTT_Connected");
 
 		//******TEMPERATURE CONFIGURATION*******//

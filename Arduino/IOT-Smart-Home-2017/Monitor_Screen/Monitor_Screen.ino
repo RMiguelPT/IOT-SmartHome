@@ -26,25 +26,22 @@
 #define ON 1
 #define OFF 0
 
-
-
-
 // Update these with values suitable for your network.
 
-//const char* ssid = "droid_wlan";
-//const char* password = "WlanDr01d16";
+const char* ssid = "droid_wlan";
+const char* password = "WlanDr01d16";
 
-const char* ssid = "home_anytime";
-const char* password = "iot2017!";
+//const char* ssid = "home_anytime";
+//const char* password = "iot2017!";
 
 //const char* ssid = "BitNet-Informatica";
 //const char* password = "bitnet-infor-2014*";
 
-//const char* mqtt_server = "10.20.228.238";
+const char* mqtt_server = "10.20.139.106";
 //const char* mqtt_user = "pi";
 //const char* mqtt_pass = "raspberry";
 
-const char* mqtt_server = "192.168.1.67";
+//const char* mqtt_server = "192.168.1.67";
 const char* mqtt_user = "modulo2";
 const char* mqtt_pass = "modulo2";
 
@@ -80,7 +77,6 @@ long lastMsg = 0;
 char msg[50];
 int flame_value = 0;
 
-
 int buttonPushCounter = 0;   // counter for the number of button presses
 int buttonState = 0;         // current state of the button
 int lastButtonState = 0;     // previous state of the button
@@ -93,12 +89,10 @@ void setup() {
 
 	delay(1000);
 	pinMode(BUILTIN_LED, OUTPUT);     // Initialize the BUILTIN_LED pin as an output
-
-									 
+								 
 	lcd.begin();
 	lcd.backlight(); // finish with backlight on  
 	lcd.clear();
-
 
 	Serial.begin(9600);
 	setup_wifi();
@@ -125,7 +119,6 @@ void setup_wifi() {
 		delay(5000);
 		Serial.print(".");
 		lcd.print(".");
-
 	}
 
 	lcd.setCursor(0, 0);
@@ -134,7 +127,6 @@ void setup_wifi() {
 	lcd.print("IP address: ");
 	lcd.setCursor(0, 2);
 	lcd.print(WiFi.localIP());
-
 
 	Serial.println("");
 	Serial.println("WiFi connected");
@@ -253,8 +245,6 @@ void reconnect() {
 			client.subscribe(mqtt_ventilation_state_topic);
 			client.subscribe(mqtt_light_state_topic);
 			client.subscribe(mqtt_gas_state_topic);
-
-
 		}
 		else {
 			Serial.print("failed, rc=");
