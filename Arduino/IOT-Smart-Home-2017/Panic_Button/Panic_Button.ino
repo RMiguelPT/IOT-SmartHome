@@ -122,7 +122,7 @@ void configure_MQTT_sensor()
 	if (client.connect("PanicButton", mqtt_user, mqtt_pass)) {
 		Serial.println("MQTT_Connected");
 
-		//******TEMPERATURE CONFIGURATION*******//
+		//****** CONFIGURATION*******//
 		JSONencoder["name"] = "Panic Button";
 		JSONencoder["state_topic"] = mqtt_state_topic;
 		JSONencoder["payload_on"] = 1;

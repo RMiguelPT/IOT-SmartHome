@@ -11,6 +11,8 @@ Author:	Ruben
 StaticJsonBuffer<300> JSONbuffer;
 JsonObject& JSONencoder = JSONbuffer.createObject();
 
+#define VENTILATION_PIN D4
+
 /********************NETWORK CONFIGURATION******************/
 /*--DroidLAN--*/
 //const char* ssid = "droid_wlan";
@@ -39,9 +41,11 @@ int value = 0;
 
 
 
+
+
 void setup() {
 
-	pinMode(D1, OUTPUT);
+	pinMode(VENTILATION_PIN, OUTPUT);
 	pinMode(BUILTIN_LED, OUTPUT);     // Initialize the BUILTIN_LED pin as an output
 
 
@@ -89,11 +93,11 @@ void callback(char* topic, byte* payload, unsigned int length) {
 	Serial.println();
 
 	if ((char)payload[0] == '1') {
-		digitalWrite(D1, HIGH);   
+		digitalWrite(VENTILATION_PIN, HIGH);   
 		client.publish(mqtt_state_topic, "1");
 	}
 	else {
-		digitalWrite(D1, LOW);  // Turn the LED off by making the voltage HIGH
+		digitalWrite(VENTILATION_PIN, LOW);  // Turn the LED off by making the voltage HIGH
 		client.publish(mqtt_state_topic, "0");
 	}
 
@@ -119,7 +123,7 @@ void loop() {
 
 void configure_MQTT_switch()
 {
-	if (client.connect("Ventilation", mqtt_user, mqtt_pass)) {
+	if (client.connect("Ventilation1", mqtt_user, mqtt_pass)) {
 		Serial.println("MQTT_Connected");
 
 		//******TEMPERATURE CONFIGURATION*******//
