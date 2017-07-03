@@ -13,16 +13,16 @@ JsonObject& JSONencoder = JSONbuffer.createObject();
 
 /********************NETWORK CONFIGURATION******************/
 /*--DroidLAN--*/
-const char* ssid = "droid_wlan";
-const char* password = "WlanDr01d16";
+//const char* ssid = "droid_wlan";
+//const char* password = "WlanDr01d16";
 
-//const char* ssid = "BitNet-Informatica";
-//const char* password = "bitnet-infor-2014*";
+const char* ssid = "home_anytime";
+const char* password = "iot2017!";
 
-//const char* mqtt_server = "192.168.1.14";
-const char* mqtt_server = "10.20.139.106";
-const char* mqtt_user = "modulo2";
-const char* mqtt_pass = "modulo2";
+const char* mqtt_server = "192.168.1.67";//local router
+const char* mqtt_user = "modulo2";//local router
+const char* mqtt_pass = "modulo2";//local router
+
 
 const char* mqtt_config_topic = "homeassistant/switch/ventilation/config";
 const char* mqtt_state_topic = "homeassistant/switch/ventilation/state";

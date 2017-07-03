@@ -18,34 +18,29 @@ JsonObject& JSONencoder = JSONbuffer.createObject();
 
 // Update these with values suitable for your network.
 
-const char* ssid = "droid_wlan";
-const char* password = "WlanDr01d16";
+//const char* ssid = "droid_wlan";
+//const char* password = "WlanDr01d16";
 
-//const char* ssid = "home_anytime";//local router
-//const char* password = "iot2017!";//local router
+const char* ssid = "home_anytime"; //SSID
+const char* password = "iot2017!"; //WiFi Password
 
-//const char* ssid = "BitNet-Informatica";
-//const char* password = "bitnet-infor-2014*";
-
-const char* mqtt_server = "10.20.139.106";
-//const char* mqtt_user = "pi";
-//const char* mqtt_pass = "raspberry";
-//const char* mqtt_server = "192.168.1.67";//local router
-const char* mqtt_user = "modulo2";//local router
-const char* mqtt_pass = "modulo2";//local router
+const char* mqtt_server = "192.168.1.67"; //mqtt broker
+const char* mqtt_user = "modulo2"; // mqtt broker username
+const char* mqtt_pass = "modulo2"; // mqtt broker password
 
 const char* mqtt_config_topic = "homeassistant/sensor/gas/config";
 const char* mqtt_state_topic = "homeassistant/sensor/gas/state";
-
+// Topic to receive gas value threshold from the platform
+const char* mqtt_set_topic = "homeassistant/sensor/gas/set";
 
 
 WiFiClient espClient;
 PubSubClient client(espClient);
 
-long lastMsg = 0;
-char msg[50];
+
 int gas_value = 0;
-int old_gas_value = 0;
+int mqtt_gas_level = 200;
+bool gas_detected = false;
 
 void setup() {
 
@@ -53,8 +48,6 @@ void setup() {
 
 	delay(1000);
 	pinMode(BUILTIN_LED, OUTPUT);     // Initialize the BUILTIN_LED pin as an output
-
-
 	Serial.begin(9600);
 	setup_wifi();
 	client.setServer(mqtt_server, 1883);
@@ -85,22 +78,21 @@ void setup_wifi() {
 }
 
 void callback(char* topic, byte* payload, unsigned int length) {
+	String msg;
 	Serial.print("Message arrived [");
 	Serial.print(topic);
 	Serial.print("] ");
 	for (int i = 0; i < length; i++) {
 		Serial.print((char)payload[i]);
+		msg += (char)payload[i];
 	}
+	
 	Serial.println();
-
-	// Switch on the LED if an 1 was received as first character
-	if ((char)payload[0] == '1') {
-		digitalWrite(BUILTIN_LED, LOW);   // Turn the LED on (Note that LOW is the voltage level
-										  // but actually the LED is on; this is because
-										  // it is acive low on the ESP-01)
-	}
-	else {
-		digitalWrite(BUILTIN_LED, HIGH);  // Turn the LED off by making the voltage HIGH
+	
+	if (String(topic) == mqtt_set_topic)
+	{
+		mqtt_gas_level =  msg.toInt();
+		Serial.println(mqtt_gas_level);
 	}
 
 }
@@ -122,18 +114,21 @@ void loop() {
 	client.loop();
 
 	gas_value = analogRead(GAS_SENSOR_PIN); //Read data from analog pin and store it to value variable
-	//gas_value = map(gas_value, 0, 1024, 1024, 0);
+	Serial.println(gas_value);
 
-	if (gas_value != old_gas_value) {
-		client.publish(mqtt_state_topic, String(gas_value).c_str());
-		old_gas_value = gas_value;
-	}
-	else
+	if (gas_value > mqtt_gas_level && !gas_detected)
 	{
-		old_gas_value = gas_value;
+		client.publish(mqtt_state_topic, "GAS DETECTED");
+		gas_detected = true;
+	}
+	else if(gas_value < mqtt_gas_level && gas_detected)
+	{
+		client.publish(mqtt_state_topic, "Air Safe");
+		gas_detected = false;
+
 	}
 	
-	delay(500);
+	delay(3000);
 }
 
 void configure_MQTT_sensor()
@@ -142,8 +137,8 @@ void configure_MQTT_sensor()
 		Serial.println("MQTT_Connected");
 
 		//******TEMPERATURE CONFIGURATION*******//
-		JSONencoder["name"] = "Kitchen Gas Level";
-		JSONencoder["unit_of_measurement"] = "ppm";
+		JSONencoder["name"] = "Kitchen Gas Presence";
+		JSONencoder["unit_of_measurement"] = "";
 
 
 		char JSONmessageBuffer[300];
@@ -154,6 +149,12 @@ void configure_MQTT_sensor()
 		{
 			Serial.println("Gas Sensor Config Message Not Published");
 		}
+		if (!client.publish(mqtt_set_topic, String(mqtt_gas_level).c_str()))
+		{
+			Serial.println("Gas Sensor Set Message Not Published");
+		}
+		client.subscribe(mqtt_set_topic);
+
 
 	}
 	else {

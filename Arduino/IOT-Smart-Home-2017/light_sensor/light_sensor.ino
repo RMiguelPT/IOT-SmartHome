@@ -18,35 +18,31 @@
 
 // Update these with values suitable for your network.
 
-const char* ssid = "droid_wlan";
-const char* password = "WlanDr01d16";
+//const char* ssid = "droid_wlan";
+//const char* password = "WlanDr01d16";
 
-//const char* ssid = "home_anytime";
-//const char* password = "iot2017!";
+const char* ssid = "home_anytime";
+const char* password = "iot2017!";
 
-//const char* ssid = "BitNet-Informatica";
-//const char* password = "bitnet-infor-2014*";
-
-const char* mqtt_server = "10.20.139.106";
-//const char* mqtt_user = "pi";
-//const char* mqtt_pass = "raspberry";
-//const char* mqtt_server = "192.168.1.67";
+const char* mqtt_server = "192.168.1.67";
 const char* mqtt_user = "modulo2";
 const char* mqtt_pass = "modulo2";
 
 
 const char* mqtt_config_topic = "homeassistant/sensor/light/config";
 const char* mqtt_state_topic = "homeassistant/sensor/light/state";
+// Topic to receive light value threshold from the platform
+const char* mqtt_set_topic = "homeassistant/sensor/light/set";
 
 
 
 WiFiClient espClient;
 PubSubClient client(espClient);
 
-long lastMsg = 0;
-char msg[50];
-int light_value = 0;
-int old_light_vlue = 0;
+
+int light_value;
+int mqtt_light_level = 200;
+bool isDark = false;
 
 void setup() {
 	pinMode(D1, INPUT);
@@ -83,24 +79,20 @@ void setup_wifi() {
 }
 
 void callback(char* topic, byte* payload, unsigned int length) {
+	String msg;
 	Serial.print("Message arrived [");
 	Serial.print(topic);
 	Serial.print("] ");
 	for (int i = 0; i < length; i++) {
 		Serial.print((char)payload[i]);
+		msg += (char)payload[i];
 	}
 	Serial.println();
-
-	// Switch on the LED if an 1 was received as first character
-	if ((char)payload[0] == '1') {
-		digitalWrite(BUILTIN_LED, LOW);   // Turn the LED on (Note that LOW is the voltage level
-										  // but actually the LED is on; this is because
-										  // it is acive low on the ESP-01)
+	if (String(topic) == mqtt_set_topic)
+	{
+		mqtt_light_level =  msg.toInt();
+		Serial.println(mqtt_light_level);
 	}
-	else {
-		digitalWrite(BUILTIN_LED, HIGH);  // Turn the LED off by making the voltage HIGH
-	}
-
 }
 
 void reconnect() {
@@ -117,19 +109,22 @@ void loop() {
 	}
 	client.loop();
 	light_value = analogRead(LIGHT_SENSOR_PIN); //Read data from analog pin and store it to value variable
+	light_value = map(light_value, 0, 1024, 1024, 0);
+	Serial.println(light_value);
 
-	if (light_value != old_light_vlue) {
-		Serial.print("Light Value: ");
-		Serial.print(light_value);
-		//light_value = map(light_value, 0, 1024, 1024, 0);
-		client.publish(mqtt_state_topic, String(light_value).c_str());
-		old_light_vlue = light_value;
+	if (light_value < mqtt_light_level && isDark)
+	{
+		Serial.println("IS DARK");
+		client.publish(mqtt_state_topic, "DARK");
+		isDark = false;
 	}
-	else {
-		old_light_vlue = light_value;
+	else if (light_value > mqtt_light_level && !isDark)
+	{
+		Serial.println("Light");
+		client.publish(mqtt_state_topic, "Light");
+		isDark = true;
 	}
-	
-	delay(500);
+	delay(1000);
 }
 
 void configure_MQTT_sensor()
@@ -139,7 +134,7 @@ void configure_MQTT_sensor()
 
 		//******LIGHT CONFIGURATION*******//
 		JSONencoder["name"] = "Living Room Light Level";
-		JSONencoder["unit_of_measurement"] = "lums";
+		JSONencoder["unit_of_measurement"] = "";
 
 		char JSONmessageBuffer[300];
 		JSONencoder.printTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
@@ -149,6 +144,12 @@ void configure_MQTT_sensor()
 		{
 			Serial.println("Light Sensor Config Message Not Published");
 		}
+
+		if (!client.publish(mqtt_set_topic, String(mqtt_light_level).c_str()))
+		{
+			Serial.println("Light Sensor Set Message Not Published");
+		}
+		client.subscribe(mqtt_set_topic);
 	}
 	else {
 		Serial.print("failed, rc=");

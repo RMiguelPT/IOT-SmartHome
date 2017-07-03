@@ -18,19 +18,19 @@ JsonObject& JSONencoder = JSONbuffer.createObject();
 
 // Update these with values suitable for your network.
 
-const char* ssid = "droid_wlan";
-const char* password = "WlanDr01d16";
+//const char* ssid = "droid_wlan";
+//const char* password = "WlanDr01d16";
 
-//const char* ssid = "home_anytime"; //local router
-//const char* password = "iot2017!";//local router
+const char* ssid = "home_anytime"; //local router
+const char* password = "iot2017!";//local router
 
 //const char* ssid = "BitNet-Informatica";
 //const char* password = "bitnet-infor-2014*";
 
-const char* mqtt_server = "10.20.139.106";
+//const char* mqtt_server = "10.20.228.238";
 //const char* mqtt_user = "pi";
 //const char* mqtt_pass = "raspberry";
-//const char* mqtt_server = "192.168.1.67";//local router
+const char* mqtt_server = "192.168.1.67";//local router
 const char* mqtt_user = "modulo2";//local route
 const char* mqtt_pass = "modulo2";//local router
 
@@ -44,11 +44,11 @@ const char* mqtt_state_topic = "homeassistant/sensor/water/state";
 WiFiClient espClient;
 PubSubClient client(espClient);
 
-long lastMsg = 0;
-char msg[50];
+//long lastMsg = 0;
+//char msg[50];
 int water_value = 0;
 int old_water_value = 0;
-int flag_flood = 2;//1- dry 2-flood
+bool flooded = false;//1- dry 2-flood
 
 void setup() {
 
@@ -123,19 +123,17 @@ void loop() {
 
 	water_value = analogRead(WATER_SENSOR_PIN); //Read data from analog pin and store it to value variable
 
-	if (water_value <= 480) {
+	if (water_value <= 480 && flooded)
+	{
 		Serial.println("Not Flooded");
-		if (flag_flood != 1) {
-			client.publish(mqtt_state_topic, "dry");
-			flag_flood = 1;
-		}
+		client.publish(mqtt_state_topic, "dry      ");
+		flooded = false;
 	}
-	else {
+	else if (water_value > 480 && !flooded)
+	{
 		Serial.println("Flooded");
-		if (flag_flood != 2) {
-			client.publish(mqtt_state_topic, "flood");
-			flag_flood = 2;
-		}
+		client.publish(mqtt_state_topic, "flood");
+		flooded = true;
 	}
 	delay(500);
 }

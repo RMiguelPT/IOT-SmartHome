@@ -18,35 +18,30 @@ JsonObject& JSONencoder = JSONbuffer.createObject();
 
 // Update these with values suitable for your network.
 
-const char* ssid = "droid_wlan";
-const char* password = "WlanDr01d16";
+//const char* ssid = "droid_wlan";
+//const char* password = "WlanDr01d16";
 
-//const char* ssid = "home_anytime";
-//const char* password = "iot2017!";
+const char* ssid = "home_anytime";
+const char* password = "iot2017!";
 
-//const char* ssid = "BitNet-Informatica";
-//const char* password = "bitnet-infor-2014*";
-
-const char* mqtt_server = "10.20.139.106";
-//const char* mqtt_server = "192.168.1.67"; //local router
-//const char* mqtt_user = "pi";
-//const char* mqtt_pass = "raspberry";
+const char* mqtt_server = "192.168.1.67"; //local router
 
 const char* mqtt_user = "modulo2"; //local router
 const char* mqtt_pass = "modulo2";//local router
 
 const char* mqtt_config_topic = "homeassistant/sensor/flame/config";
 const char* mqtt_state_topic = "homeassistant/sensor/flame/state";
+// Topic to receive light value threshold from the platform
+const char* mqtt_set_topic = "homeassistant/sensor/flame/set";
 
 
 
 WiFiClient espClient;
 PubSubClient client(espClient);
 
-long lastMsg = 0;
-char msg[50];
-int flame_value = 0;
-int old_flames_value = 0;
+int flame_value;
+int mqtt_flame_level = 850;
+bool isFlame = false;
 
 void setup() {
 
@@ -86,22 +81,19 @@ void setup_wifi() {
 }
 
 void callback(char* topic, byte* payload, unsigned int length) {
+	String msg;
 	Serial.print("Message arrived [");
 	Serial.print(topic);
 	Serial.print("] ");
 	for (int i = 0; i < length; i++) {
 		Serial.print((char)payload[i]);
+		msg += (char)payload[i];
 	}
 	Serial.println();
-
-	// Switch on the LED if an 1 was received as first character
-	if ((char)payload[0] == '1') {
-		digitalWrite(BUILTIN_LED, LOW);   // Turn the LED on (Note that LOW is the voltage level
-										  // but actually the LED is on; this is because
-										  // it is acive low on the ESP-01)
-	}
-	else {
-		digitalWrite(BUILTIN_LED, HIGH);  // Turn the LED off by making the voltage HIGH
+	if (String(topic) == mqtt_set_topic)
+	{
+		mqtt_flame_level = msg.toInt();
+		Serial.println(mqtt_flame_level);
 	}
 
 }
@@ -125,15 +117,22 @@ void loop() {
 	flame_value = analogRead(FLAME_SENSOR_PIN); //Read data from analog pin and store it to value variable
 	flame_value = map(flame_value, 0, 1024, 1024, 0);
 
-	if (flame_value != old_flames_value && abs(old_flames_value-flame_value) > 200 ){
+	Serial.println(flame_value);
 
-		client.publish(mqtt_state_topic, String(flame_value).c_str());
-		old_flames_value = flame_value;
+	if (flame_value > mqtt_flame_level && !isFlame)
+	{
+		Serial.println("FIRE");
+		client.publish(mqtt_state_topic, "FIRE");
+		isFlame = true;
 	}
-	else {
-		old_flames_value = flame_value;
+	else if (flame_value < mqtt_flame_level && isFlame)
+	{
+		Serial.println("No Fire");
+		client.publish(mqtt_state_topic, "Safe");
+		isFlame = false;
 	}
-	delay(500);
+	delay(1000);
+
 }
 
 void configure_MQTT_sensor()
@@ -154,6 +153,11 @@ void configure_MQTT_sensor()
 		{
 			Serial.println("Flame Sensor Config Message Not Published");
 		}
+		if (!client.publish(mqtt_set_topic, String(mqtt_flame_level).c_str()))
+		{
+			Serial.println("Flame Sensor Set Message Not Published");
+		}
+		client.subscribe(mqtt_set_topic);
 
 	}
 	else {

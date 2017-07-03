@@ -21,7 +21,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pir_sensor", "pir_sensor\pi
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "magnetic_sensor", "magnetic_sensor\magnetic_sensor.vcxproj", "{5882747B-81D0-4643-B29D-39F6168524BB}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "magnetic_room_sensor", "magnetic_room_sensor\magnetic_room_sensor.vcxproj", "{A71ECE9C-1400-488C-A3A3-CCC6AF09DFED}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Panic_Button", "Panic_Button\Panic_Button.vcxproj", "{C6F206C4-6DD3-4926-A057-E5E6F67D3B36}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RFID_alarm", "RFID_alarm\RFID_alarm.vcxproj", "{ECB7BAB4-BF25-4FA7-9842-0AAD50B157A3}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Alarm_Buzzer", "Alarm_Buzzer\Alarm_Buzzer.vcxproj", "{69D27B9E-FEDD-4ACE-B348-676D5158CC74}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "room_magnetic_sensor", "room_magnetic_sensor\room_magnetic_sensor.vcxproj", "{AA9F38D4-2F2B-42D0-90F6-A476C17D8477}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -65,10 +71,22 @@ Global
 		{5882747B-81D0-4643-B29D-39F6168524BB}.Debug|x86.Build.0 = Debug|Win32
 		{5882747B-81D0-4643-B29D-39F6168524BB}.Release|x86.ActiveCfg = Release|Win32
 		{5882747B-81D0-4643-B29D-39F6168524BB}.Release|x86.Build.0 = Release|Win32
-		{A71ECE9C-1400-488C-A3A3-CCC6AF09DFED}.Debug|x86.ActiveCfg = Debug|Win32
-		{A71ECE9C-1400-488C-A3A3-CCC6AF09DFED}.Debug|x86.Build.0 = Debug|Win32
-		{A71ECE9C-1400-488C-A3A3-CCC6AF09DFED}.Release|x86.ActiveCfg = Release|Win32
-		{A71ECE9C-1400-488C-A3A3-CCC6AF09DFED}.Release|x86.Build.0 = Release|Win32
+		{C6F206C4-6DD3-4926-A057-E5E6F67D3B36}.Debug|x86.ActiveCfg = Debug|Win32
+		{C6F206C4-6DD3-4926-A057-E5E6F67D3B36}.Debug|x86.Build.0 = Debug|Win32
+		{C6F206C4-6DD3-4926-A057-E5E6F67D3B36}.Release|x86.ActiveCfg = Release|Win32
+		{C6F206C4-6DD3-4926-A057-E5E6F67D3B36}.Release|x86.Build.0 = Release|Win32
+		{ECB7BAB4-BF25-4FA7-9842-0AAD50B157A3}.Debug|x86.ActiveCfg = Debug|Win32
+		{ECB7BAB4-BF25-4FA7-9842-0AAD50B157A3}.Debug|x86.Build.0 = Debug|Win32
+		{ECB7BAB4-BF25-4FA7-9842-0AAD50B157A3}.Release|x86.ActiveCfg = Release|Win32
+		{ECB7BAB4-BF25-4FA7-9842-0AAD50B157A3}.Release|x86.Build.0 = Release|Win32
+		{69D27B9E-FEDD-4ACE-B348-676D5158CC74}.Debug|x86.ActiveCfg = Debug|Win32
+		{69D27B9E-FEDD-4ACE-B348-676D5158CC74}.Debug|x86.Build.0 = Debug|Win32
+		{69D27B9E-FEDD-4ACE-B348-676D5158CC74}.Release|x86.ActiveCfg = Release|Win32
+		{69D27B9E-FEDD-4ACE-B348-676D5158CC74}.Release|x86.Build.0 = Release|Win32
+		{AA9F38D4-2F2B-42D0-90F6-A476C17D8477}.Debug|x86.ActiveCfg = Debug|Win32
+		{AA9F38D4-2F2B-42D0-90F6-A476C17D8477}.Debug|x86.Build.0 = Debug|Win32
+		{AA9F38D4-2F2B-42D0-90F6-A476C17D8477}.Release|x86.ActiveCfg = Release|Win32
+		{AA9F38D4-2F2B-42D0-90F6-A476C17D8477}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

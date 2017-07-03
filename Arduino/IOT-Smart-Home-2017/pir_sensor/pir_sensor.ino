@@ -18,18 +18,13 @@
 
 
 // Update these with values suitable for your network.
-const char* ssid = "droid_wlan";
-const char* password = "WlanDr01d16";
+//const char* ssid = "droid_wlan";
+//const char* password = "WlanDr01d16";
 
-//const char* ssid = "home_anytime"; //local crouter
-//const char* password = "iot2017!"; //local router
+const char* ssid = "home_anytime"; //local crouter
+const char* password = "iot2017!"; //local router
 
-
-//const char* ssid = "BitNet-Informatica";
-//const char* password = "bitnet-infor-2014*";
-
-const char* mqtt_server = "10.20.139.106";
-//const char* mqtt_server = "192.168.1.67"; //local router
+const char* mqtt_server = "192.168.1.67"; //local router
 const char* mqtt_user = "modulo2";
 const char* mqtt_pass = "modulo2";
 
@@ -132,12 +127,12 @@ void loop() {
 		old_pir_value = pir_value;
 	}
 	
-	delay(1000);
+	delay(500);
 }
 
 void configure_MQTT_sensor()
 {
-	if (client.connect("Pir22Sensor", mqtt_user, mqtt_pass)) {
+	if (client.connect("PirSensor", mqtt_user, mqtt_pass)) {
 		Serial.println("MQTT_Connected");
 
 		//******TEMPERATURE CONFIGURATION*******//
